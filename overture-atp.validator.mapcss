@@ -1,0 +1,75 @@
+meta
+{
+    title: "Overture and All the Places rules";
+    version: "0.1";
+    description: "Random validation rules for checking some of the junk in All the Places and Overture maps data. Using these rules does not make it OK to import without consulting the local community.";
+    author: "whammo";
+    baselanguage: "en";
+    min-josm-version: 14481;
+    link: "https://github.com/whubsch/custom-josm-rules";
+}
+
+/* remove junk import tags */
+*["@spider"],
+*["nsi_id"],
+*["ownership_type"],
+*["store_type"],
+*["departments"],
+*["retail_id"],
+*["store_format"] {
+  throwWarning: "All the Places";
+  fixRemove: "@spider";
+  fixRemove: "nsi_id";
+  fixRemove: "{0.key}";
+  group: "Nonstandard tag from an outside source";
+}
+
+/* remove junk tag */
+*["confidence"] {
+  throwWarning: "Overture";
+  fixRemove: "confidence";
+  group: "Nonstandard tag from an outside source";
+}
+
+/* remove country tag */
+*["addr:country"] {
+  throwWarning: "Country tag usually not needed";
+  fixRemove: "addr:country";
+}
+
+/* remove unsplit address strings */
+*["addr:street_address"]["addr:street"]["addr:housenumber"],
+*["addr:full"]["addr:street"]["addr:housenumber"] {
+  assertMatch: "node \"addr:street_address\"=\"915 N St. Asaph Street\" \"addr:street\"=\"Asaph Street\" \"addr:housenumber\"=915";
+  assertNoMatch: "node \"addr:street_address\"=\"915 N St. Asaph Street\" \"addr:housenumber\"=915";
+  throwWarning: "All the Places unexpanded address";
+  fixRemove: "{0.key}";
+  group: "Nonstandard tag from an outside source";
+}
+
+*[!"addr:street"],
+*[!"addr:housenumber"] {
+  set incompleteaddr;
+}
+
+/* flag unsplit address strings */
+*["addr:street_address"].incompleteaddr,
+*["addr:full"].incompleteaddr {
+  assertMatch: "node \"addr:street_address\"=\"915 N St. Asaph Street\" \"addr:street\"=\"Asaph Street\" \"addr:housenumber\"=915";
+  throwWarning: "All the Places unexpanded address";
+  group: "Nonstandard tag from an outside source";
+}
+
+/* parse full address strings */
+*["addr:full"]["addr:full"=~/([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)/][!"addr:street"][!"addr:housenumber"],
+*["addr:street_address"]["addr:street_address"=~/([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)/][!"addr:street"][!"addr:housenumber"] {
+  assertMatch: "node \"addr:full\"=\"915 N St. Asaph Street\"";
+  assertMatch: "node \"addr:street_address\"=\"915 N St. Asaph Street\"";
+  assertNoMatch: "node \"addr:full\"=\"915 N St. Asaph Street\" \"addr:street\"=\"Asaph Street\" \"addr:housenumber\"=915";
+  assertNoMatch: "node \"addr:street_address\"=\"915 N St. Asaph Street\" \"addr:street\"=\"Asaph Street\" \"addr:housenumber\"=915";
+  throwWarning: "Address field not split up into proper keys";
+  fixAdd: concat("addr:housenumber=", get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 1));
+  fixAdd: upper(get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 3)) == get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 3) ? concat("addr:street=", title(get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 3))) : concat("addr:street=", get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 3));
+  fixAdd: concat("addr:unit=", get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 2));
+  fixRemove: "{0.key}";
+}

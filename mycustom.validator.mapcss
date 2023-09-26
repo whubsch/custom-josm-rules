@@ -1,0 +1,300 @@
+meta
+{
+    title: "United States multitool rules";
+    version: "0.1";
+    description: "Random validation rules focused on the US that improve JOSM life.";
+    author: "whammo";
+    baselanguage: "en";
+    min-josm-version: 14481;
+    link: "https://github.com/whubsch/custom-josm-rules";
+}
+
+*["addr:housenumber"]["addr:city"$=County][source^=esri] {
+  throwWarning: "ESRI imported city in address refers to the county";
+}
+
+*[check_date]:modified {
+  throwWarning: "Modified object has old check_date key";
+  fixRemove: "check_date";
+}
+
+/* remove junk TIGER tags */
+way[/tiger:.*/] {
+  assertNoMatch: "way highway=trunk";
+  assertMatch: "way highway=trunk \"tiger:cfcc\"=C42";
+  throwWarning: "Way has TIGER import keys, check before removing";
+  fixRemove: "tiger:cfcc";
+  fixRemove: "tiger:county";
+  fixRemove: "tiger:name_base";
+  fixRemove: "tiger:name_type";
+  fixRemove: "tiger:reviewed";
+  fixRemove: "tiger:zip_left";
+  fixRemove: "tiger:zip_right";
+  fixRemove: "tiger:tlid";
+  fixRemove: "tiger:source";
+  fixRemove: "tiger:upload_uuid";
+  fixRemove: "tiger:separated";
+  fixRemove: "tiger:name_direction_prefix";
+  fixRemove: "tiger:name_base_1";
+  fixRemove: "tiger:name_base_2";
+  fixRemove: "tiger:name_direction_suffix";
+  fixRemove: "tiger:name_type_1";
+  fixRemove: "tiger:name_type_2";
+}
+
+/* move name_1 to alt_name if available, otherwise delete */
+way["name_1"]:modified,
+way["name_2"]:modified {
+  throwWarning: "{0.key}";
+  fixAdd: tag("alt_name") ? "" : concat("alt_name=", tag("{0.key}"));
+  fixRemove: "{0.key}";
+  group: "Deprecated tag used, fix to move to alt_name";
+
+}
+
+*["image"!~/.*\.(?:png|jpe?g)\/?$/][image] {
+  throwWarning: tr("{0} does not end in an image extension", "{0.key}");
+  fixRemove: "image";
+}
+
+*["name"=~/^(St.?)( .+)$/] {
+  throwWarning: "Unexpanded \"St\" in name";
+  fixRemove: "{0.key}";
+  fixAdd: concat(tr("{0}=Saint", "{0.key}"), get(regexp_match("^(St.?)( .+)$", tag("{0.key}")), 2));
+}
+
+*[/^[A-Z].*/] {
+  throwWarning: "{0.key}";
+  group: "Key starts with a capital letter";
+}
+
+/* lowercase common values */
+*["amenity"=~/^[A-Z].*/],
+*["shop"=~/^[A-Z].*/],
+*["highway"=~/^[A-Z].*/],
+*["service"=~/^[A-Z].*/],
+*["landuse"=~/^[A-Z].*/],
+*["natural"=~/^[A-Z].*/],
+*["building"=~/^[A-Z].*/] {
+  throwWarning: "{0.key}";
+  fixAdd: concat("{0.key}=", lower(tag("{0.key}")));
+  group: "Value starts with a capital letter";
+}
+
+/* remove redundant tags if identical */
+*["website"]["contact:website"],
+*["phone"]["contact:phone"],
+*["website"]["url"] {
+  throwWarning: "{0.key}";
+  fixRemove: tag("{0.key}") == tag(tr("{0}", "{1.key}")) ? tr("{0}", "{1.key}") : "";
+  group: "Potential duplicate tags";
+}
+
+/* remove tracking parameters from urls */
+*["website"=~/(https?:\/\/[^\s?#]+)(\?)[^#\s]*(utm|cid)[^#\s]*/],
+*["url"=~/(https?:\/\/[^\s?#]+)(\?)[^#\s]*(utm|cid)[^#\s]*/] {
+  throwWarning: tr("{0} contains tracking params", "{0.key}");
+  fixRemove: "{0.key}";
+  fixAdd: concat(tr("{0}=", "{0.key}"), get(regexp_match("(https?:\\/\\/[^\\s?#]+)(\\?)[^#\\s]*(utm|cid)[^#\\s]*", tag("{0.key}")), 1));
+}
+
+*["addr:postcode"=~/[0-9]{5}-?0{4}/] {
+  set needlesszip;
+}
+
+/* edit poorly formatted postcode tags */
+*[inside("US")].needlesszip {
+  assertMatch: "node \"addr:postcode\"=123450000";
+  assertMatch: "node \"addr:postcode\"=12345-0000";
+  assertNoMatch: "node \"addr:postcode\"=12345";
+  assertNoMatch: "node \"addr:postcode\"=12345-1234";
+  throwWarning: "extra digits";
+  fixAdd: concat("addr:postcode=", get(regexp_match("([0-9]{5})-?0{4}", tag("addr:postcode")), 1));
+  group: "Zipcode incorrectly formatted";
+}
+
+/* edit poorly formatted postcode tags */
+*["addr:postcode"=~/[0-9]{9}/][inside("US")]!.needlesszip {
+  assertMatch: "node \"addr:postcode\"=123451234";
+  assertNoMatch: "node \"addr:postcode\"=12345-1234";
+  assertNoMatch: "node \"addr:postcode\"=12345";
+  throwWarning: "no dash";
+  fixAdd: concat("addr:postcode=", get(regexp_match("([0-9]{5})([0-9]{4})", tag("addr:postcode")), 1), "-", get(regexp_match("([0-9]{5})([0-9]{4})", tag("addr:postcode")), 2));
+  group: "Zipcode incorrectly formatted";
+}
+
+/* place suite or unit tags from addr:street into addr:unit */
+*["addr:street"=~/(.+?),? (?:S(?:ui)?te |Uni?t |#)([A-Z0-9]+)/][inside("US")] {
+  set unitaddr;
+}
+
+*.unitaddr {
+  throwWarning: "parseable";
+  fixAdd: concat("addr:street=", get(regexp_match("(.+?),? (?:S(?:ui)?te |Uni?t |#)([A-Z0-9]+)", tag("addr:street")), 1));
+  fixAdd: concat("addr:unit=", get(regexp_match("(.+?),? (?:S(?:ui)?te |Uni?t |#)([A-Z0-9]+)", tag("addr:street")), 2));
+  group: "Street address might have misplaced unit info";
+}
+
+/* warn of suite or unit tags from addr:street in addr:street */
+*["addr:street"=~/(.+),? (?:S(?:ui)?te |Uni?t |#).+/]!.unitaddr {
+  throwWarning: "unparseable";
+  group: "Street address might have misplaced unit info";
+}
+
+/* place suite or unit tags from addr:housenumber into addr:unit */
+*["addr:housenumber"=~/^([0-9]+)[ -]?([A-Za-z]+)$/] {
+  assertMatch: "node \"addr:housenumber\"=915A";
+  assertMatch: "node \"addr:housenumber\"=915-A";
+  assertNoMatch: "node \"addr:housenumber\"=915";
+  throwWarning: tr("{0} might have addr:unit info", "{0.key}");
+  fixAdd: concat("addr:housenumber=", get(regexp_match("^([0-9]+)[ -]?([A-Z]+)$", tag("addr:housenumber")), 1));
+  fixAdd: concat("addr:unit=", get(regexp_match("^([0-9]+)[ -]?([A-Z]+)$", tag("addr:housenumber")), 2));
+}
+
+/* place suite or unit tags from addr:housenumber into addr:unit */
+*["addr:unit"=~/^(?:S(?:ui)?te|Uni?t|#) *([a-zA-Z0-9-]+)$/] {
+  assertMatch: "node \"addr:unit\"=\"Suite 1\"";
+  assertMatch: "node \"addr:unit\"=\"Unit 2-1A\"";
+  assertNoMatch: "node \"addr:unit\"=1";
+  throwWarning: tr("{0} should just be the letters or digits", "{0.key}");
+  fixAdd: concat("addr:unit=", get(regexp_match("^(?:S(?:ui)?te|Uni?t|#) *([a-zA-Z0-9-]+)$", tag("addr:unit")), 1));
+}
+
+*["addr:housenumber"$=","],
+*["addr:unit"$=","],
+*["addr:street"$=","] {
+  throwWarning: "";
+  fixRemove: "{0.key}";
+  fixAdd: concat("{0.key}=", get(regexp_match("^(.*),$", tag("{0.key}")), 1));
+  group: "Address value ends in a comma";
+}
+
+/* remove refs that are actually websites */
+*["ref"=~/^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z]{1,6}/] {
+  assertMatch: "way ref=https://www.ddg.co";
+  assertNoMatch: "way ref=345";
+  throwWarning: "Ref value is a website";
+  fixAdd: tag("website") ? concat("website=", tag("website")) : concat("website=", tag("ref"));
+  fixRemove: "ref";
+}
+
+/* correct addr:street and addr:city in all caps */
+*["addr:street"]["addr:street"=~/^[A-Z -]+$/],
+*["addr:city"]["addr:city"=~/^[A-Z -]+$/] {
+  assertNoMatch: "way \"addr:street\"=Redmond Way";
+  assertMatch: "way \"addr:street\"=REMOND WAY";
+  throwWarning: tr("{0} is ALL CAPS, likely needs to be Title Case", "{0.key}");
+  fixAdd: concat(tr("{0}=", "{0.key}"), title(tag("{0.key}")));
+}
+
+*["phone"]["phone"=~/^\(?(?:\+? ?1?[ -.]*)?(?:\(?([0-9]{3})\)?[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$/][inside("US")],
+*["contact:phone"]["contact:phone"=~/^\(?(?:\+? ?1?[ -.]*)?(?:\(?([0-9]{3})\)?[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$/][inside("US")] {
+  set validphone;
+}
+
+*["phone"]["phone"=~/^\+1[ -][0-9]{3}[ -][0-9]{3}-[0-9]{4}$/][inside("US")],
+*["contact:phone"]["contact:phone"=~/^\+1[ -][0-9]{3}[ -][0-9]{3}-[0-9]{4}$/][inside("US")] {
+  set formattedphone;
+}
+
+*["phone"]["phone"=~/^\+1 [0-9]{3}-[0-9]{3}-[0-9]{4}$/][inside("US")],
+*["contact:phone"]["contact:phone"=~/^\+1 [0-9]{3}-[0-9]{3}-[0-9]{4}$/][inside("US")] {
+  set perfectphone;
+}
+
+/* flag potentially non-US phone numbers */
+*["phone"]!.validphone,
+*["contact:phone"]!.validphone {
+  assertMatch: "node phone=\"383382039\"";
+  assertMatch: "node phone=\"(383) 380398\"";
+  assertNoMatch: "node phone=\"1.383.382.0398\"";
+  assertNoMatch: "node phone=\"(383) 3820398\"";
+  assertNoMatch: "node phone=\"+1 303-355-1765\"";
+  
+  throwWarning: tr("{0} is unreadable", "{0.value}");
+  group: "Phone number formatting";
+}
+
+/* reformat valid phone numbers -> +1 NXX-NXX-NXXX  */
+*["phone"].validphone!.formattedphone {
+  assertMatch: "node phone=\"1 (383) 382-0398\"";
+  assertMatch: "node phone=\"+1 383 382 0398\"";
+  assertMatch: "node phone=\"3833820398\"";
+  assertMatch: "node phone=\"1.383.382.0398\"";
+  assertNoMatch: "node phone=\"+1 383 382-0398\"";
+  assertNoMatch: "node phone=\"+1 383-382-0398\"";
+  assertNoMatch: "node phone=\"+1-383-382-0398\"";
+  
+  throwWarning: tr("{0} not in a standard format", "{0.key}");
+  fixAdd: tr("phone=+1 {0}-{1}-{2}", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 1), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 2), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 3));
+  group: "Phone number formatting";
+}
+
+/* same, but for contact:phone */
+*["contact:phone"].validphone!.formattedphone {
+  throwWarning: tr("{0} not in a standard format", "{0.key}");
+  fixAdd: tr("contact:phone=+1 {0}-{1}-{2}", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 1), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 2), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 3));
+  group: "Phone number formatting";
+}
+
+/* fix non-standard phone formats on already-modified objects */
+*["phone"].validphone:modified!.perfectphone {
+  throwWarning: tr("{0} acceptable, but not standard", "{0.key}");
+  fixAdd: concat("phone=+1 ", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 1), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 2), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 3));
+  group: "Phone number formatting";
+}
+
+/* same, but for contact:phone */
+*["contact:phone"].validphone:modified!.perfectphone {
+  throwWarning: tr("{0} acceptable, but not standard", "{0.key}");
+  fixAdd: concat("contact:phone=+1 ", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 1), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 2), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 3));
+  group: "Phone number formatting";
+}
+
+/* flag missing area codes */
+*["phone"]["phone"=~/^(?:[0-9]{3})[ -.]*(?:[0-9]{4})$/][inside("US")],
+*["contact:phone"]["contact:phone"=~/^(?:[0-9]{3})[ -.]*(?:[0-9]{4})$/][inside("US")] {
+  assertMatch: "node phone=\"456 1234\"";
+  assertNoMatch: "node phone=\"123 456 1234\"";
+
+  throwWarning: tr("{0} missing area code", "{0.value}");
+  group: "Phone number formatting";
+}
+
+/* remove wikipedia tags if wikidata exists */
+*["brand:wikipedia"]["brand:wikidata"],
+*["operator:wikipedia"]["operator:wikidata"],
+*["network:wikipedia"]["network:wikidata"],
+*["wikipedia"]["wikidata"],
+*["subject:wikipedia"]["subject:wikidata"],
+*["flag:wikipedia"]["flag:wikidata"] {
+  throwWarning: "{0.key}";
+  fixRemove: "{0.key}";
+  group: "Deprecated wikipedia key";
+}
+
+/* missing state address tag in VA */
+*["addr:housenumber"][!"addr:state"][inside("US-VA")]:modified {
+  throwWarning: "Address is missing state";
+  fixAdd: "addr:state=VA";
+}
+
+/* missing state address tag in VA */
+*["addr:housenumber"][!"addr:state"][inside("US-MD")]:modified {
+  throwWarning: "Address is missing state";
+  fixAdd: "addr:state=MD";
+}
+
+/* remove type tag on non-relations */
+node["type"],
+way["type"] {
+  throwWarning: "Type tag only recommended on relations";
+  fixRemove: "{0.key}";
+}
+
+/* use with caution! */
+way[highway=residential][!name] {
+  throwWarning: "Residential road has no name. Convert to service?";
+  fixRemove: "highway";
+  fixAdd: "highway=service";
+}
