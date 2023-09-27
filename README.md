@@ -7,6 +7,7 @@
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
+- [MapCSS documentation](documentation.md)
 - [Contributing](#contributing)
 
 ## Introduction
@@ -50,6 +51,10 @@ Once you've installed and activated the custom validation rules, you can use the
 - **Use Caution:** Remember that these custom rules may produce false positives or not cover all possible issues. Always use your local knowledge and common sense when making edits. Do not just blindly mash `Fix`.
 
 - **Contribute Feedback:** If you encounter issues with the custom rules or have suggestions for improvements, consider reaching out to the rule's maintainer or contributing to the rules' development. See below.
+
+## Documentation
+
+I've tried to write basic, clear MapCSS validation documentation, available [here](documentation.md). More comprehensive, if more confusing, documentation is available on the [JOSM Wiki](https://josm.openstreetmap.de/wiki/Help/Validator/MapCSSTagChecker).
 
 ## Contributing
 
