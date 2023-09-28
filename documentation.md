@@ -20,6 +20,15 @@ Lastly, using the [MapCSS Syntax Highlighter](https://marketplace.visualstudio.c
 
 Selectors are how rules pick which objects they target. Selectors are chained, refining the objects that will be returned to your functions as you add additional parameters, as if adding `AND` boolean operators. Order does not matter, as long as a type comes first.
 
+Selectors can be combined, with a comma and newline between them, to apply rules to groups of selected objects. The last selector group should never have a comma between it and the function, otherwise the rule will be applied to all objects!
+
+```js
+way["name"],
+way["alt_name"] {
+  /* do something to both of these selected groups*/
+}
+```
+
 ## Types
 
 Every selector must begin with one of the following types.
@@ -174,10 +183,10 @@ Key is unexpected [+]
 
 Unit tests example keys and values to see if the selectors are working. Does not check the rule's commands, just the selection. The `validator.check_assert_local_rules` setting must be set to `true`.
 
-| name            | description                                             | example       |
-| --------------- | ------------------------------------------------------- | ------------- |
-| `assertMatch`   | Check that the selector matches the given string.       | `"key=value"` |
-| `assertNoMatch` | Check that the selector doesn't match the given string. | `"key"`       |
+| name            | description                                             | example selector of `*["wikidata"][!"shop"]`        |
+| --------------- | ------------------------------------------------------- | --------------------------------------------------- |
+| `assertMatch`   | Check that the selector matches the given string.       | `"assertMatch: "way wikidata=Q12345";"`             |
+| `assertNoMatch` | Check that the selector doesn't match the given string. | `"assertNoMatch: "way wikidata=Q12345 shop=gift";"` |
 
 ## Strings
 
@@ -230,7 +239,7 @@ Conditional operator that can be used to add some simple logic for what to pass 
 ```js
 *["website"]["url"] {
   throwWarning: "Duplicate tag: {0.key}";
-  fixRemove: tag("{0.key}") == tag("{1.key}") ? tr("{0}", "{1.key}") : "";
+  fixRemove: tag("{0.value}") == tag("{1.value}") ? tr("{0}", "{1.key}") : "";
 }
 ```
 
@@ -240,7 +249,7 @@ There are lots of other useful string functions, like `join`, `split`, `upper`, 
 
 ### Placeholders
 
-Placeholders look up the selector, helping to reduce rule the need to rewrite the same code for different keys or values. The placeholder uses the index of the selector, starting at `0` with the first non-type filter. They are similar in syntax to Python f-strings, going between brackets in a string. They require one of the following selector attributes:
+Placeholders look up the selector, helping to reduce the need to rewrite the same code for different keys or values. The placeholder uses the index of the selector, starting at `0` with the first non-type filter. They are similar in syntax to Python f-strings, going between brackets in a string. They require one of the following selector attributes:
 
 | name    | output                                                                | syntax        |
 | ------- | --------------------------------------------------------------------- | ------------- |
