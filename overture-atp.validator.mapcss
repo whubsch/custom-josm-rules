@@ -32,7 +32,7 @@ meta
 }
 
 /* remove country tag */
-*["addr:country"] {
+*["addr:country"]:modified {
   throwWarning: "Country tag usually not needed";
   fixRemove: "addr:country";
 }

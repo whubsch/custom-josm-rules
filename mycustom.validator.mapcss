@@ -160,11 +160,16 @@ way["name_2"]:modified {
   fixAdd: concat("addr:unit=", get(regexp_match("^(?:S(?:ui)?te|Uni?t|#) *([a-zA-Z0-9-]+)$", tag("addr:unit")), 1));
 }
 
+
+*["addr:street"=~/^[0-9]+$/] {
+  throwWarning: "{0.key} is all numbers";
+}
+
+/* addr ends in comma */
 *["addr:housenumber"$=","],
 *["addr:unit"$=","],
 *["addr:street"$=","] {
   throwWarning: "";
-  fixRemove: "{0.key}";
   fixAdd: concat("{0.key}=", get(regexp_match("^(.*),$", tag("{0.key}")), 1));
   group: "Address value ends in a comma";
 }
@@ -265,7 +270,6 @@ way["name_2"]:modified {
 *["brand:wikipedia"]["brand:wikidata"],
 *["operator:wikipedia"]["operator:wikidata"],
 *["network:wikipedia"]["network:wikidata"],
-*["wikipedia"]["wikidata"],
 *["subject:wikipedia"]["subject:wikidata"],
 *["flag:wikipedia"]["flag:wikidata"] {
   throwWarning: "{0.key}";
