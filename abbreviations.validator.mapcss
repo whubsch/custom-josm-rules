@@ -1,0 +1,40 @@
+meta
+{
+    title: "United States name abbreviations";
+    version: "0.1";
+    description: "Random validation rules focused on the US that improve JOSM life.";
+    author: "whammo";
+    baselanguage: "en";
+    min-josm-version: 14481;
+    link: "https://github.com/whubsch/custom-josm-rules";
+}
+
+*["name"=~/Intl/] {
+  group: "Common abbreviation used in name";
+  throwWarning: "Intl";
+  fixAdd: concat("name=", replace(tag("name"), "Intl", "International"));
+}
+
+*["name"=~/Dwtn/] {
+  group: "Common abbreviation used in name";
+  throwWarning: "Dwtn";
+  fixAdd: concat("name=", replace(tag("name"), "Dwtn", "Downtown"));
+}
+
+*["name"=~/Ctr/] {
+  group: "Common abbreviation used in name";
+  throwWarning: "Ctr";
+  fixAdd: concat("name=", replace(tag("name"), "Ctr", "Center"));
+}
+
+*["name"=~/Arpt/] {
+  group: "Common abbreviation used in name";
+  throwWarning: "Arpt";
+  fixAdd: concat("name=", replace(tag("name"), "Arpt", "Airport"));
+}
+
+*["name"=~/Conf\b/] {
+  group: "Common abbreviation used in name";
+  throwWarning: "Conf";
+  fixAdd: concat("name=", replace(tag("name"), "Conf", "Conference"));
+}
