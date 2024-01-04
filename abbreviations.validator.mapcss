@@ -9,32 +9,43 @@ meta
     link: "https://github.com/whubsch/custom-josm-rules";
 }
 
-*["name"=~/Intl/] {
+*["amenity"="bicycle_rental"],
+*["highway"="bus_stop"] {
+  set exempt;
+}
+
+*["name"=~/Intl/]!.exempt {
   group: "Common abbreviation used in name";
   throwWarning: "Intl";
   fixAdd: concat("name=", replace(tag("name"), "Intl", "International"));
 }
 
-*["name"=~/Dwtn/] {
+*["name"=~/Dwtn/]!.exempt {
   group: "Common abbreviation used in name";
   throwWarning: "Dwtn";
   fixAdd: concat("name=", replace(tag("name"), "Dwtn", "Downtown"));
 }
 
-*["name"=~/Ctr/] {
+*["name"=~/Ctr/]!.exempt {
   group: "Common abbreviation used in name";
   throwWarning: "Ctr";
   fixAdd: concat("name=", replace(tag("name"), "Ctr", "Center"));
 }
 
-*["name"=~/Arpt/] {
+*["name"=~/Arpt/]!.exempt {
   group: "Common abbreviation used in name";
   throwWarning: "Arpt";
   fixAdd: concat("name=", replace(tag("name"), "Arpt", "Airport"));
 }
 
-*["name"=~/Conf\b/] {
+*["name"=~/Conf\b/]!.exempt {
   group: "Common abbreviation used in name";
   throwWarning: "Conf";
   fixAdd: concat("name=", replace(tag("name"), "Conf", "Conference"));
+}
+
+*["name"=~/Bldg/]!.exempt {
+  group: "Common abbreviation used in name";
+  throwWarning: "Bldg";
+  fixAdd: concat("name=", replace(tag("name"), "Bldg", "Building"));
 }
