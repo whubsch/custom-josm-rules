@@ -52,13 +52,14 @@ way["name_2"]:modified {
 
 }
 
-*["image"!~/.*\.(?:png|jpe?g)\/?$/][image] {
+*["image"!~/.*\.(?:png|jpe?g|PNG|JPE?G)\/?$/][image] {
   throwWarning: tr("{0} does not end in an image extension", "{0.key}");
   fixRemove: "image";
 }
 
-*["name"=~/^(St.?)( .+)$/] {
-  throwWarning: "Unexpanded \"St\" in name";
+*["name"=~/^(St.?)( .+)$/],
+*["addr:street"=~/^(St.?)( .+)$/] {
+  throwWarning: tr("Unexpanded \"St\" in {0}", "{0.key}");
   fixRemove: "{0.key}";
   fixAdd: concat(tr("{0}=Saint", "{0.key}"), get(regexp_match("^(St.?)( .+)$", tag("{0.key}")), 2));
 }
@@ -220,7 +221,7 @@ way["name_2"]:modified {
   assertNoMatch: "node phone=\"(383) 3820398\"";
   assertNoMatch: "node phone=\"+1 303-355-1765\"";
   
-  throwWarning: tr("{0} is unreadable", "{0.value}");
+  throwWarning: "unreadable";
   group: "Phone number formatting";
 }
 
@@ -246,6 +247,7 @@ way["name_2"]:modified {
   group: "Phone number formatting";
 }
 
+/* same, but for fax */
 *["fax"].validphone!.formattedphone {
   throwWarning: tr("{0} not in a standard format", "{0.key}");
   fixAdd: tr("fax=+1 {0}-{1}-{2}", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 1), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 2), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 3));
@@ -266,7 +268,7 @@ way["name_2"]:modified {
   group: "Phone number formatting";
 }
 
-/* same, but for contact:phone */
+/* same, but for fax */
 *["fax"].validphone:modified!.perfectphone {
   throwWarning: tr("{0} acceptable, but not standard", "{0.key}");
   fixAdd: concat("fax=+1 ", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 1), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 2), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 3));
@@ -301,13 +303,12 @@ way["name_2"]:modified {
   fixAdd: "addr:state=VA";
 }
 
-/* missing state address tag in VA */
+/* missing state address tag in MD */
 *["addr:housenumber"][!"addr:state"][inside("US-MD")]:modified {
   throwWarning: "Address is missing state";
   fixAdd: "addr:state=MD";
 }
 
-/* remove type tag on non-relations */
 *["tourism"="hotel"]["name"=~/, an IHG Hotel$/] {
   throwWarning: "Unnecessary description for a hotel";
   fixAdd: concat("name=", replace(tag(name), ", an IHG Hotel", ""));
@@ -325,4 +326,55 @@ way[highway=residential][!name] {
   throwWarning: "Residential road has no name. Convert to service?";
   fixRemove: "highway";
   fixAdd: "highway=service";
+}
+
+*["addr:street"=~/(.*)(\b[0-9]+(?:Th|Nd|St|Rd)\b)(.*)/] {
+  throwWarning: "Improperly capitalized ordinal postfix";
+  fixAdd: concat("addr:street=", get(regexp_match("(.*)(\\b[0-9]+(?:Th|Nd|St|Rd)\\b)(.*)", tag("addr:street")), 1), lower(get(regexp_match("(.*)(\\b[0-9]+(?:Th|Nd|St|Rd)\\b)(.*)", tag("addr:street")), 2)), get(regexp_match("(.*)(\\b[0-9]+(?:Th|Nd|St|Rd)\\b)(.*)", tag("addr:street")), 3));
+}
+
+/* remove unnecessary GNIS keys */
+*["gnis:fcode"],
+*["gnis:ftype"],
+*["gnis:created"],
+*["gnis:county_id"],
+*["gnis:state_id"],
+*["gnis:county_name"],
+*["gnis:feature_type"],
+*["gnis:import_uuid"],
+*["gnis:County"],
+*["gnis:ST_num"],
+*["gnis:County_num"],
+*["gnis:ST_alpha"],
+*["gnis:Class"],
+*["gnis:name"],
+*["gnis:Cell"],
+*["gnis:ST_alph"],
+*["gnis:state"],
+*["gnis:county"],
+*["gnis:feature"],
+*["gnis:review"],
+*["gnis:class"] {
+  throwWarning: "Unnecessary GNIS tags";
+  fixRemove: "gnis:fcode";
+  fixRemove: "gnis:ftype";
+  fixRemove: "gnis:created";
+  fixRemove: "gnis:county_id";
+  fixRemove: "gnis:state_id";
+  fixRemove: "gnis:county_name";
+  fixRemove: "gnis:feature_type";
+  fixRemove: "gnis:import_uuid";
+  fixRemove: "gnis:County";
+  fixRemove: "gnis:ST_num";
+  fixRemove: "gnis:County_num";
+  fixRemove: "gnis:ST_alpha";
+  fixRemove: "gnis:Class";
+  fixRemove: "gnis:name";
+  fixRemove: "gnis:Cell";
+  fixRemove: "gnis:ST_alph";
+  fixRemove: "gnis:state";
+  fixRemove: "gnis:county";
+  fixRemove: "gnis:feature";
+  fixRemove: "gnis:review";
+  fixRemove: "gnis:class";
 }

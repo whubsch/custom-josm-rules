@@ -61,15 +61,15 @@ meta
 }
 
 /* parse full address strings */
-*["addr:full"]["addr:full"=~/([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)/][!"addr:street"][!"addr:housenumber"],
-*["addr:street_address"]["addr:street_address"=~/([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)/][!"addr:street"][!"addr:housenumber"] {
+*["addr:full"]["addr:full"=~/([0-9]+)(?:-?([A-Z]+))?,? ([a-zA-Z .'0-9]+)/][!"addr:street"][!"addr:housenumber"],
+*["addr:street_address"]["addr:street_address"=~/([0-9]+)(?:-?([A-Z]+))?,? ([a-zA-Z .'0-9]+)/][!"addr:street"][!"addr:housenumber"] {
   assertMatch: "node \"addr:full\"=\"915 N St. Asaph Street\"";
   assertMatch: "node \"addr:street_address\"=\"915 N St. Asaph Street\"";
   assertNoMatch: "node \"addr:full\"=\"915 N St. Asaph Street\" \"addr:street\"=\"Asaph Street\" \"addr:housenumber\"=915";
   assertNoMatch: "node \"addr:street_address\"=\"915 N St. Asaph Street\" \"addr:street\"=\"Asaph Street\" \"addr:housenumber\"=915";
   throwWarning: "Address field not split up into proper keys";
-  fixAdd: concat("addr:housenumber=", get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 1));
-  fixAdd: upper(get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 3)) == get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 3) ? concat("addr:street=", title(get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 3))) : concat("addr:street=", get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 3));
-  fixAdd: concat("addr:unit=", get(regexp_match("([0-9]+)(?:-?([A-Z]+))? ([a-zA-Z .']+)", tag("{0.key}")), 2));
+  fixAdd: concat("addr:housenumber=", get(regexp_match("([0-9]+)(?:-?([A-Z]+))?,? ([a-zA-Z .'0-9]+)", tag("{0.key}")), 1));
+  fixAdd: upper(get(regexp_match("([0-9]+)(?:-?([A-Z]+))?,? ([a-zA-Z .'0-9]+)", tag("{0.key}")), 3)) == get(regexp_match("([0-9]+)(?:-?([A-Z]+))?,? ([a-zA-Z .'0-9]+)", tag("{0.key}")), 3) ? concat("addr:street=", title(get(regexp_match("([0-9]+)(?:-?([A-Z]+))?,? ([a-zA-Z .'0-9]+)", tag("{0.key}")), 3))) : concat("addr:street=", get(regexp_match("([0-9]+)(?:-?([A-Z]+))?,? ([a-zA-Z .'0-9]+)", tag("{0.key}")), 3));
+  fixAdd: concat("addr:unit=", get(regexp_match("([0-9]+)(?:-?([A-Z]+))?,? ([a-zA-Z .'0-9]+)", tag("{0.key}")), 2));
   fixRemove: "{0.key}";
 }
