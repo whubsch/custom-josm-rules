@@ -309,11 +309,6 @@ way["name_2"]:modified {
   fixAdd: "addr:state=MD";
 }
 
-*["tourism"="hotel"]["name"=~/, an IHG Hotel$/] {
-  throwWarning: "Unnecessary description for a hotel";
-  fixAdd: concat("name=", replace(tag(name), ", an IHG Hotel", ""));
-}
-
 /* remove type tag on non-relations */
 node["type"],
 way["type"] {
@@ -377,4 +372,51 @@ way[highway=residential][!name] {
   fixRemove: "gnis:feature";
   fixRemove: "gnis:review";
   fixRemove: "gnis:class";
+}
+
+*["name"="Aldi"] {
+  group: "Bad name";
+  throwWarning: "ALDI";
+  fixAdd: "name=ALDI";
+}
+
+*["name"="DollarTree"] {
+  group: "Bad name";
+  throwWarning: "Dollar Tree";
+  fixAdd: "name=Dollar Tree";
+}
+
+*["tourism"="hotel"]["name"=~/, an IHG Hotel$/] {
+  throwWarning: "Unnecessary description for a hotel";
+  fixAdd: concat("name=", replace(tag(name), ", an IHG Hotel", ""));
+}
+
+*["tourism"]["name"=~/(.*)( [Bb]y Wyndham)(.*)/] {
+  group: "Hotel chain in name";
+  throwWarning: "Wyndham";
+  fixAdd: concat("name=", replace(tag("name"), " by Wyndham", ""));
+}
+
+*["tourism"]["name"=~/(.*)( [Bb]y Hilton)(.*)/] {
+  group: "Hotel chain in name";
+  throwWarning: "Hilton";
+  fixAdd: concat("name=", replace(tag("name"), " by Hilton", ""));
+}
+
+*["tourism"]["name"=~/(.*)( [Bb]y Hyatt)(.*)/] {
+  group: "Hotel chain in name";
+  throwWarning: "Hyatt";
+  fixAdd: concat("name=", replace(tag("name"), " by Hyatt", ""));
+}
+
+*["tourism"]["name"=~/(.*)( [Bb]y Marriott)(.*)/] {
+  group: "Hotel chain in name";
+  throwWarning: "Marriott";
+  fixAdd: concat("name=", replace(tag("name"), " by Marriott", ""));
+}
+
+*["tourism"]["name"=~/(.*)( [Bb]y Best Western)(.*)/] {
+  group: "Hotel chain in name";
+  throwWarning: "Best Western";
+  fixAdd: concat("name=", replace(tag("name"), " by Best Western", ""));
 }
