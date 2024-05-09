@@ -428,7 +428,8 @@ way[highway=residential][!name] {
   fixAdd: concat("name=", replace(replace(tag("name"), " by Radisson", ""), " By Radisson", ""));
 }
 
-*["stars"] {
+*["stars"],
+*["import_uuid"] {
   group: "Unnecessary tag";
   throwWarning: "{0.key}";
   fixRemove: "{0.key}";
