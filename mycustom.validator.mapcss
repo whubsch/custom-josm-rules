@@ -387,36 +387,49 @@ way[highway=residential][!name] {
 }
 
 *["tourism"="hotel"]["name"=~/, an IHG Hotel$/] {
-  throwWarning: "Unnecessary description for a hotel";
+  group: "Hotel chain in name";
+  throwWarning: "IHG";
   fixAdd: concat("name=", replace(tag(name), ", an IHG Hotel", ""));
 }
 
 *["tourism"]["name"=~/(.*)( [Bb]y Wyndham)(.*)/] {
   group: "Hotel chain in name";
   throwWarning: "Wyndham";
-  fixAdd: concat("name=", replace(tag("name"), " by Wyndham", ""));
+  fixAdd: concat("name=", replace(replace(tag("name"), " by Wyndham", ""), " By Wyndham", ""));
 }
 
 *["tourism"]["name"=~/(.*)( [Bb]y Hilton)(.*)/] {
   group: "Hotel chain in name";
   throwWarning: "Hilton";
-  fixAdd: concat("name=", replace(tag("name"), " by Hilton", ""));
+  fixAdd: concat("name=", replace(replace(tag("name"), " by Hilton", ""), " By Hilton", ""));
 }
 
 *["tourism"]["name"=~/(.*)( [Bb]y Hyatt)(.*)/] {
   group: "Hotel chain in name";
   throwWarning: "Hyatt";
-  fixAdd: concat("name=", replace(tag("name"), " by Hyatt", ""));
+  fixAdd: concat("name=", replace(replace(tag("name"), " by Hyatt", ""), " By Hyatt", ""));
 }
 
 *["tourism"]["name"=~/(.*)( [Bb]y Marriott)(.*)/] {
   group: "Hotel chain in name";
   throwWarning: "Marriott";
-  fixAdd: concat("name=", replace(tag("name"), " by Marriott", ""));
+  fixAdd: concat("name=", replace(replace(tag("name"), " by Marriott", ""), " By Marriott", ""));
 }
 
 *["tourism"]["name"=~/(.*)( [Bb]y Best Western)(.*)/] {
   group: "Hotel chain in name";
   throwWarning: "Best Western";
-  fixAdd: concat("name=", replace(tag("name"), " by Best Western", ""));
+  fixAdd: concat("name=", replace(replace(tag("name"), " by Best Western", ""), " By Best Western", ""));
+}
+
+*["tourism"]["name"=~/(.*)( [Bb]y Radisson)(.*)/] {
+  group: "Hotel chain in name";
+  throwWarning: "Radisson";
+  fixAdd: concat("name=", replace(replace(tag("name"), " by Radisson", ""), " By Radisson", ""));
+}
+
+*["stars"] {
+  group: "Unnecessary tag";
+  throwWarning: "{0.key}";
+  fixRemove: "{0.key}";
 }
