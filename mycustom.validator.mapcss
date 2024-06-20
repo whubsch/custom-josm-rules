@@ -434,3 +434,31 @@ way[highway=residential][!name] {
   throwWarning: "{0.key}";
   fixRemove: "{0.key}";
 }
+
+*["addr:unit"="W"]["addr:street"=~/^[0-9]+0.*/]["amenity"] {
+  group: "Bad Salt Lake City address";
+  throwWarning: "west";
+  fixAdd: concat("addr:street=West ", tag("addr:street"));
+  fixRemove: "addr:unit";
+}
+
+*["addr:unit"="E"]["addr:street"=~/^[0-9]+0.*/]["amenity"] {
+  group: "Bad Salt Lake City address";
+  throwWarning: "east";
+  fixAdd: concat("addr:street=East ", tag("addr:street"));
+  fixRemove: "addr:unit";
+}
+
+*["addr:unit"="S"]["addr:street"=~/^[0-9]+0.*/]["amenity"] {
+  group: "Bad Salt Lake City address";
+  throwWarning: "south";
+  fixAdd: concat("addr:street=South ", tag("addr:street"));
+  fixRemove: "addr:unit";
+}
+
+*["addr:unit"="N"]["addr:street"=~/^[0-9]+0.*/]["amenity"] {
+  group: "Bad Salt Lake City address";
+  throwWarning: "north";
+  fixAdd: concat("addr:street=North ", tag("addr:street"));
+  fixRemove: "addr:unit";
+}
