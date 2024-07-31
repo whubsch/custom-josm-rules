@@ -143,13 +143,18 @@ way["name_2"]:modified {
 }
 
 /* place suite or unit tags from addr:housenumber into addr:unit */
-*["addr:housenumber"=~/^([0-9]+)[ -]?([A-Za-z]+)$/] {
+*["addr:housenumber"=~/^([0-9]+)[ -]?([A-Za-z]+)$/][outside("US-UT")] {
   assertMatch: "node \"addr:housenumber\"=915A";
   assertMatch: "node \"addr:housenumber\"=915-A";
   assertNoMatch: "node \"addr:housenumber\"=915";
   throwWarning: tr("{0} might have addr:unit info", "{0.key}");
   fixAdd: concat("addr:housenumber=", get(regexp_match("^([0-9]+)[ -]?([A-Z]+)$", tag("addr:housenumber")), 1));
   fixAdd: concat("addr:unit=", get(regexp_match("^([0-9]+)[ -]?([A-Z]+)$", tag("addr:housenumber")), 2));
+}
+
+/* warn of objects with addr:state=SC outside of South Carolina (usually shopping center) */
+*["addr:state"="SC"][outside("US-SC")] {
+  throwWarning: "addr:state=SC is outside South Carolina";
 }
 
 /* place suite or unit tags from addr:housenumber into addr:unit */
