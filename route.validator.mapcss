@@ -1,0 +1,28 @@
+meta
+{
+    title: "Route description fixes";
+    version: "0.1";
+    description: "Add info to route relations automatically to speed up adding them to the map.";
+    author: "whammo";
+    baselanguage: "en";
+    min-josm-version: 14481;
+    link: "https://github.com/whubsch/custom-josm-rules";
+}
+
+relation[type=route][route=road][ref][inside("US-VA")][!description] {
+  group: "Incomplete route info";
+  throwWarning: "description";
+  fixAdd: concat("description=SR ", tag("ref"), " (Prince William)");
+}
+
+relation[type=route][route=road][ref=~/^([6-9][0-9]{2}|[1-9][0-9]{3})$/][inside("US-VA")][!network] {
+  group: "Incomplete route info";
+  throwWarning: "network (secondary)";
+  fixAdd: tr("network=US:VA:Secondary");
+}
+
+relation[type=route][route=road][ref=~/^[1-5][0-9]{2}$/][inside("US-VA")][!network] {
+  group: "Incomplete route info";
+  throwWarning: "network (primary)";
+  fixAdd: tr("network=US:VA");
+}
