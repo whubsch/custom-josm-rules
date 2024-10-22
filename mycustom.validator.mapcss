@@ -225,7 +225,7 @@ way["name_2"]:modified {
   assertNoMatch: "node phone=\"1.383.382.0398\"";
   assertNoMatch: "node phone=\"(383) 3820398\"";
   assertNoMatch: "node phone=\"+1 303-355-1765\"";
-  
+
   throwWarning: "unreadable";
   group: "Phone number formatting";
 }
@@ -239,7 +239,7 @@ way["name_2"]:modified {
   assertNoMatch: "node phone=\"+1 383 382-0398\"";
   assertNoMatch: "node phone=\"+1 383-382-0398\"";
   assertNoMatch: "node phone=\"+1-383-382-0398\"";
-  
+
   throwWarning: tr("{0} not in a standard format", "{0.key}");
   fixAdd: tr("phone=+1 {0}-{1}-{2}", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 1), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 2), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 3));
   group: "Phone number formatting";
@@ -488,4 +488,10 @@ way[highway=residential][!name] {
   throwWarning: "north";
   fixAdd: concat("addr:street=North ", tag("addr:street"));
   fixRemove: "addr:unit";
+}
+
+relation[type=boundary][boundary=administrative][admin_level=7][inside("US-IA")][name=~/^.* Township \(Q[0-9]+\)$/] {
+  throwWarning: "Iowa township with Q code";
+  fixAdd: concat("name=", get(split(" (", tag("name")), 0));
+  fixAdd: concat("wikidata=", replace(get(split(" (", tag("name")), 1), ")", ""));
 }
