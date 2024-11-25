@@ -283,7 +283,7 @@ way["name_2"]:modified {
 /* flag missing area codes */
 *["phone"]["phone"=~/^(?:[0-9]{3})[ -.]*(?:[0-9]{4})$/][inside("US")],
 *["contact:phone"]["contact:phone"=~/^(?:[0-9]{3})[ -.]*(?:[0-9]{4})$/][inside("US")],
-*["fax"]["fax"=~/^(?:[0-9]{3})[ -.]*(?:[0-9]{4})$/][inside("US")], {
+*["fax"]["fax"=~/^(?:[0-9]{3})[ -.]*(?:[0-9]{4})$/][inside("US")] {
   assertMatch: "node phone=\"456 1234\"";
   assertNoMatch: "node phone=\"123 456 1234\"";
 
