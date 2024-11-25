@@ -490,8 +490,8 @@ way[highway=residential][!name] {
   fixRemove: "addr:unit";
 }
 
-relation[type=boundary][boundary=administrative][admin_level=7][inside("US-IA")][name=~/^.* Township \(Q[0-9]+\)$/] {
-  throwWarning: "Iowa township with Q code";
+*[name=~/^.* \(Q[0-9]+\)$/][!wikidata] {
+  throwWarning: "Wikidata code in name";
   fixAdd: concat("name=", get(split(" (", tag("name")), 0));
   fixAdd: concat("wikidata=", replace(get(split(" (", tag("name")), 1), ")", ""));
 }
