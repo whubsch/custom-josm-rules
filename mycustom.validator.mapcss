@@ -42,6 +42,25 @@ way[/tiger:.*/] {
   fixRemove: "tiger:name_type_2";
 }
 
+/* remove legacy TIGER tags from boundaries */
+relation[type=boundary][/tiger:.*/] {
+  assertNoMatch: "relation type=boundary admin_level=8";
+  assertMatch: "relation type=boundary admin_level=8 \"tiger:CLASSFP\"=C1";
+  throwWarning: "Boundary relation has legacy TIGER import keys, check before removing";
+  fixRemove: "tiger:CLASSFP";
+  fixRemove: "tiger:CPIN";
+  fixRemove: "tiger:FUNCSTAT";
+  fixRemove: "tiger:LSAD";
+  fixRemove: "tiger:MTFCC";
+  fixRemove: "tiger:NAME";
+  fixRemove: "tiger:NAMELSA";
+  fixRemove: "tiger:PCICBSA";
+  fixRemove: "tiger:PCINECTA";
+  fixRemove: "tiger:PLACEFP";
+  fixRemove: "tiger:PLCIDFP";
+  fixRemove: "tiger:STATEFP";
+}
+
 /* move name_1 to alt_name if available, otherwise delete */
 way["name_1"]:modified,
 way["name_2"]:modified {
