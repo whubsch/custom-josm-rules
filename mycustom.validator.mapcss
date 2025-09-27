@@ -514,3 +514,32 @@ way[highway=residential][!name] {
   fixAdd: concat("name=", get(split(" (", tag("name")), 0));
   fixAdd: concat("wikidata=", replace(get(split(" (", tag("name")), 1), ")", ""));
 }
+
+*[name=~/^.* \([0-9]+\)$/][place] {
+  throwWarning: "Number in place name";
+  fixAdd: concat("name=", get(split(" (", tag("name")), 0));
+}
+
+relation[type=route][route][name=~/(<[-=]>|<→)/] {
+  group: "Route name contains unformatted arrow";
+  throwWarning: "<=> or <->";
+  fixAdd: concat("name=", replace(replace(replace(tag("name"), "<→", "↔"), "<=>", "↔"), "<->", "↔"));
+}
+
+relation[type=route][route][name=~/ (=>|->)/] {
+  group: "Route name contains unformatted arrow";
+  throwWarning: "=> or ->";
+  fixAdd: concat("name=", replace(replace(tag("name"), "=>", "→"), "->", "→"));
+}
+
+way[highway][name]["name_1"][!alt_name] {
+  group: "Deprecated name field can be moved";
+  throwWarning: "name_1";
+  fixAdd: concat("alt_name=", tag("name_1"));
+}
+
+way[highway][name]["name_2"][!"name_1"][!alt_name] {
+  group: "Deprecated name field can be moved";
+  throwWarning: "name_2";
+  fixAdd: concat("alt_name=", tag("name_2"));
+}

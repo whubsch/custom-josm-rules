@@ -49,3 +49,9 @@ meta
   throwWarning: "Bldg";
   fixAdd: concat("name=", replace(tag("name"), "Bldg", "Building"));
 }
+
+*["name"=~/^Dr\.? /]!.exempt {
+  group: "Common abbreviation used in name";
+  throwWarning: "Dr";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Dr.", "Doctor"), "Dr", "Doctor"));
+}

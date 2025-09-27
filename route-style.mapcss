@@ -1,0 +1,17 @@
+meta
+{
+	title: "Road Route Colors";
+	author: "whammo";
+	version: "0.1_7_2022-05-08";
+	description: "Style to classify road routes.";
+        link: "https://josm.openstreetmap.de/wiki/Styles/Coloured_buildings_uk";
+}
+
+relation["type"="route"]["route"="road"] {
+	set: road_route;
+}
+
+relation["type"="route"]["route"="road"]["network"]["ref"] {
+	label: concat(tag("network"), tag("ref"));
+	width: 2;
+}
