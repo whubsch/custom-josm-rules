@@ -559,3 +559,15 @@ way[highway][name]["name_2"][!"name_1"][!alt_name] {
   throwWarning: "Mc contains a space after it";
   fixAdd: concat("name=", replace(tag("name"), "Mc ", "Mc"));
 }
+
+*[population=~/.*,.*/] {
+  group: "Number value contains a comma";
+  throwWarning: "elevation";
+  fixAdd: concat("population=", replace(tag("population"), ",", ""));
+}
+
+*[ele=~/.*,.*/] {
+  group: "Number value contains a comma";
+  throwWarning: "elevation";
+  fixAdd: concat("ele=", replace(tag("ele"), ",", ""));
+}
