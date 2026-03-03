@@ -1,0 +1,373 @@
+meta
+{
+    title: "Spanish name abbreviations and accent marks";
+    version: "0.1";
+    description: "Random validation rules focused on the Spanish that improve JOSM life.";
+    author: "whammo";
+    baselanguage: "en";
+    min-josm-version: 14481;
+    link: "https://github.com/whubsch/custom-josm-rules";
+}
+
+*["amenity"="bicycle_rental"],
+*["highway"="bus_stop"] {
+  set exempt;
+}
+
+*["name"=~/\bSta\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Santa";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Sta.", "Santa"), "Sta ", "Santa "));
+}
+*["name"=~/\bDptal\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Departamental";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Dptal.", "Departamental"), "Dptal ", "Departamental "));
+}
+*["name"=~/\bMpal\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Municipal";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Mpal.", "Municipal"), "Mpal ", "Municipal "));
+}
+*["name"=~/\bBto\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Bachillerato";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Bto.", "Bachillerato"), "Bto ", "Bachillerato "));
+}
+*["name"=~/\bRur\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Rural";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Rur.", "Rural"), "Rur ", "Rural "));
+}
+*["name"=~/\bNva\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Nueva";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Nva.", "Nueva"), "Nva ", "Nueva "));
+}
+*["name"=~/\bNvo\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Nuevo";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Nvo.", "Nuevo"), "Nvo ", "Nuevo "));
+}
+*["name"=~/\bSgdo\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Sagrado";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Sgdo.", "Sagrado"), "Sgdo ", "Sagrado "));
+}
+*["name"=~/\bSgda\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Sagrada";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Sgda.", "Sagrada"), "Sgda ", "Sagrada "));
+}
+*["name"=~/\bEsc\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Esc";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Esc.", "Escuela"), "Esc ", "Escuela "));
+}
+*["name"=~/\bVda\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Vda";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Vda.", "Vereda"), "Vda ", "Vereda "));
+}
+*["name"=~/\bNtra\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Nuestra";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Ntra.", "Nuestra"), "Ntra ", "Nuestra "));
+}
+*["name"=~/\bSra\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Señora";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Sra.", "Señora"), "Sra ", "Señora "));
+}
+*["name"=~/\bSr\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Señor";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Sr.", "Señor"), "Sr ", "Señor "));
+}
+*["name"=~/\bUrb\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Urbano";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Urb.", "Urbano"), "Urb ", "Urbano "));
+}
+*["name"=~/\bNo\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Numero";
+  fixAdd: concat("name=", replace(replace(tag("name"), "No.", "Numero"), "No ", "Numero "));
+}
+*["name"=~/\bQda\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Quebrada";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Qda.", "Quebrada"), "Qda ", "Quebrada "));
+}
+*["name"=~/\bPto\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Puerto";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Pto.", "Puerto"), "Pto ", "Puerto "));
+}
+*["name"=~/\bB\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Barrio";
+  fixAdd: concat("name=", replace(replace(tag("name"), "B.", "Barrio"), "B ", "Barrio "));
+}
+
+/* Spanish accent mark corrections */
+*["name"=~/\bCafe\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Cafe should be Café";
+  fixAdd: concat("name=", replace(tag("name"), "Cafe", "Café"));
+}
+
+*["name"=~/\bJose\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Jose should be José";
+  fixAdd: concat("name=", replace(tag("name"), "Jose", "José"));
+}
+
+*["name"=~/\bMaria\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Maria should be María";
+  fixAdd: concat("name=", replace(tag("name"), "Maria", "María"));
+}
+
+*["name"=~/\bColon\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Colon should be Colón";
+  fixAdd: concat("name=", replace(tag("name"), "Colon", "Colón"));
+}
+
+*["name"=~/\bJardin\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Jardin should be Jardín";
+  fixAdd: concat("name=", replace(tag("name"), "Jardin", "Jardín"));
+}
+
+*["name"=~/\bPublico\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Publico should be Público";
+  fixAdd: concat("name=", replace(tag("name"), "Publico", "Público"));
+}
+
+*["name"=~/\bPublica\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Publica should be Pública";
+  fixAdd: concat("name=", replace(tag("name"), "Publica", "Pública"));
+}
+
+*["name"=~/\bCarcel\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Carcel should be Cárcel";
+  fixAdd: concat("name=", replace(tag("name"), "Carcel", "Cárcel"));
+}
+
+*["name"=~/\bCanton\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Canton should be Cantón";
+  fixAdd: concat("name=", replace(tag("name"), "Canton", "Cantón"));
+}
+
+*["name"=~/\bComunion\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Comunion should be Comunión";
+  fixAdd: concat("name=", replace(tag("name"), "Comunion", "Comunión"));
+}
+
+*["name"=~/\bNacion\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Nacion should be Nación";
+  fixAdd: concat("name=", replace(tag("name"), "Nacion", "Nación"));
+}
+
+*["name"=~/\bAlcaldia\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Alcaldia should be Alcaldía";
+  fixAdd: concat("name=", replace(tag("name"), "Alcaldia", "Alcaldía"));
+}
+
+*["name"=~/\bPolicia\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Policia should be Policía";
+  fixAdd: concat("name=", replace(tag("name"), "Policia", "Policía"));
+}
+
+*["name"=~/\bEjercito\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Ejercito should be Ejército";
+  fixAdd: concat("name=", replace(tag("name"), "Ejercito", "Ejército"));
+}
+
+*["name"=~/\bAvion\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Avion should be Avión";
+  fixAdd: concat("name=", replace(tag("name"), "Avion", "Avión"));
+}
+
+*["name"=~/\bSebastian\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Sebastian should be Sebastián";
+  fixAdd: concat("name=", replace(tag("name"), "Sebastian", "Sebastián"));
+}
+
+*["name"=~/\bAgustin\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Agustin should be Agustín";
+  fixAdd: concat("name=", replace(tag("name"), "Agustin", "Agustín"));
+}
+
+*["name"=~/\bRamon\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Ramon should be Ramón";
+  fixAdd: concat("name=", replace(tag("name"), "Ramon", "Ramón"));
+}
+
+*["name"=~/\bBartolome\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Bartolome should be Bartolomé";
+  fixAdd: concat("name=", replace(tag("name"), "Bartolome", "Bartolomé"));
+}
+
+*["name"=~/\bJeronimo\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Jeronimo should be Jerónimo";
+  fixAdd: concat("name=", replace(tag("name"), "Jeronimo", "Jerónimo"));
+}
+
+*["name"=~/\bNicolas\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Nicolas should be Nicolás";
+  fixAdd: concat("name=", replace(tag("name"), "Nicolas", "Nicolás"));
+}
+
+*["name"=~/\bTomas\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Tomas should be Tomás";
+  fixAdd: concat("name=", replace(tag("name"), "Tomas", "Tomás"));
+}
+
+*["name"=~/\bAnton\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Anton should be Antón";
+  fixAdd: concat("name=", replace(tag("name"), "Anton", "Antón"));
+}
+
+*["name"=~/\bMartin\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Martin should be Martín";
+  fixAdd: concat("name=", replace(tag("name"), "Martin", "Martín"));
+}
+
+*["name"=~/\bFelix\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Felix should be Félix";
+  fixAdd: concat("name=", replace(tag("name"), "Felix", "Félix"));
+}
+
+*["name"=~/\bAndres\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Andres should be Andrés";
+  fixAdd: concat("name=", replace(tag("name"), "Andres", "Andrés"));
+}
+
+*["name"=~/\bCristobal\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Cristobal should be Cristóbal";
+  fixAdd: concat("name=", replace(tag("name"), "Cristobal", "Cristóbal"));
+}
+
+*["name"=~/\bBarbara\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Barbara should be Bárbara";
+  fixAdd: concat("name=", replace(tag("name"), "Barbara", "Bárbara"));
+}
+
+*["name"=~/\bBolivar\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Bolivar should be Bolívar";
+  fixAdd: concat("name=", replace(tag("name"), "Bolivar", "Bolívar"));
+}
+
+*["name"=~/\bNarino\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Narino should be Nariño";
+  fixAdd: concat("name=", replace(tag("name"), "Narino", "Nariño"));
+}
+
+*["name"=~/\bCordoba\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Cordoba should be Córdoba";
+  fixAdd: concat("name=", replace(tag("name"), "Cordoba", "Córdoba"));
+}
+
+*["name"=~/\bGalan\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Galan should be Galán";
+  fixAdd: concat("name=", replace(tag("name"), "Galan", "Galán"));
+}
+
+*["name"=~/\bRio\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Rio should be Río";
+  fixAdd: concat("name=", replace(tag("name"), "Rio", "Río"));
+}
+
+*["name"=~/\bParamo\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Paramo should be Páramo";
+  fixAdd: concat("name=", replace(tag("name"), "Paramo", "Páramo"));
+}
+
+*["name"=~/\bCienaga\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Cienaga should be Ciénaga";
+  fixAdd: concat("name=", replace(tag("name"), "Cienaga", "Ciénaga"));
+}
+
+*["name"=~/\bBahia\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Bahia should be Bahía";
+  fixAdd: concat("name=", replace(tag("name"), "Bahia", "Bahía"));
+}
+
+*["name"=~/\bCañon\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Cañon should be Cañón";
+  fixAdd: concat("name=", replace(tag("name"), "Cañon", "Cañón"));
+}
+
+*["name"=~/\bConexion\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Conexion should be Conexión";
+  fixAdd: concat("name=", replace(tag("name"), "Conexion", "Conexión"));
+}
+
+*["name"=~/\bVia\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Via should be Vía";
+  fixAdd: concat("name=", replace(tag("name"), "Via", "Vía"));
+}
+
+*["name"=~/\bVolcan\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "Volcan should be Volcán";
+  fixAdd: concat("name=", replace(tag("name"), "Volcan", "Volcán"));
+}
+
+*["name"=~/\Bcion\b/] {
+  group: "Missing accent mark in Spanish name";
+  throwWarning: "-cion should be -ción";
+  fixAdd: concat("name=", replace(tag("name"), "cion", "ción"));
+}
+
+*["addr:city"=~/ De /],
+*["addr:state"=~/ De /] {
+  group: "Preposition in Spanish name";
+  throwWarning: "De";
+  fixAdd: concat(tr("{0}=", "{0.key}"), replace(tag("{0.key}"), " De ", " de "));
+}
+
+*["name"=~/ Y /],
+*["addr:city"=~/ Y /],
+*["addr:state"=~/ Y /] {
+  group: "Preposition in Spanish name";
+  throwWarning: "Y";
+  fixAdd: concat(tr("{0}=", "{0.key}"), replace(tag("{0.key}"), " Y ", " y "));
+}
