@@ -562,10 +562,10 @@ way[highway][name]["name_2"][!"name_1"][!alt_name] {
   fixAdd: concat("name=", replace(tag("name"), "Mc ", "Mc"));
 }
 
-*[population=~/.*[\.,].*/] {
+*[population=~/.*[\., ].*/] {
   group: "Number value contains punctuation";
   throwWarning: "population";
-  fixAdd: concat("population=", replace(replace(tag("population"), ",", ""), ".", ""));
+  fixAdd: concat("population=", replace(replace(replace(tag("population"), ",", ""), ".", ""), " ", ""));
 }
 
 *[ele=~/.*,.*/] {
