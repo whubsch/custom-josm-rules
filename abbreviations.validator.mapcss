@@ -55,3 +55,27 @@ meta
   throwWarning: "Dr";
   fixAdd: concat("name=", replace(replace(tag("name"), "Dr.", "Doctor"), "Dr", "Doctor"));
 }
+
+*["name"=~/\bChr\b/]!.exempt {
+  group: "Common abbreviation used in name";
+  throwWarning: "Chr";
+  fixAdd: concat("name=", replace(tag("name"), "Chr", "Church"));
+}
+
+*["name"=~/\bAme\b/]!.exempt {
+  group: "Common abbreviation used in name";
+  throwWarning: "Ame";
+  fixAdd: concat("name=", replace(tag("name"), "Ame", "African Methodist Episcopal"));
+}
+
+*["name"=~/\bCme\b/]!.exempt {
+  group: "Common abbreviation used in name";
+  throwWarning: "Cme";
+  fixAdd: concat("name=", replace(tag("name"), "Cme", "Christian Methodist Episcopal"));
+}
+
+*["name"=~/\bMt\b/]!.exempt {
+  group: "Common abbreviation used in name";
+  throwWarning: "Mt";
+  fixAdd: concat("name=", replace(tag("name"), "Mt", "Mount"));
+}

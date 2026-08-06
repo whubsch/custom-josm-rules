@@ -223,7 +223,7 @@ way["name_2"]:modified {
 /* *["name"]["name"=~/^(?=.*\s)[A-Z\s]+$/], */
 *["addr:street"]["addr:street"=~/^[\p{Lu} -]+$/],
 *["addr:city"]["addr:city"=~/^[\p{Lu} -]+$/],
-*["addr:state"]["addr:state"=~/^[\p{Lu} -]+$/] {
+*["addr:state"]["addr:state"=~/^[\p{Lu} -]{3,}+$/] {
   assertNoMatch: "way \"addr:street\"=Redmond Way";
   assertMatch: "way \"addr:street\"=REDMOND WAY";
   throwWarning: tr("{0} is ALL CAPS, likely needs to be Title Case", "{0.key}");
@@ -236,15 +236,15 @@ way["name_2"]:modified {
   set validphone;
 }
 
-*["phone"]["phone"=~/^\+1[ -][0-9]{3}[ -][0-9]{3}-[0-9]{4}$/][inside("US")],
-*["contact:phone"]["contact:phone"=~/^\+1[ -][0-9]{3}[ -][0-9]{3}-[0-9]{4}$/][inside("US")],
-*["fax"]["fax"=~/^\+1[ -][0-9]{3}[ -][0-9]{3}-[0-9]{4}$/][inside("US")] {
+*["phone"]["phone"=~/^\+1(?: [0-9]{3}-|[ -][0-9]{3} )[0-9]{3}-[0-9]{4}$/][inside("US")],
+*["contact:phone"]["contact:phone"=~/^\+1(?: [0-9]{3}-|[ -][0-9]{3} )[0-9]{3}-[0-9]{4}$/][inside("US")],
+*["fax"]["fax"=~/^\+1(?: [0-9]{3}-|[ -][0-9]{3} )[0-9]{3}-[0-9]{4}$/][inside("US")] {
   set formattedphone;
 }
 
-*["phone"]["phone"=~/^\+1 [0-9]{3}-[0-9]{3}-[0-9]{4}$/][inside("US")],
-*["contact:phone"]["contact:phone"=~/^\+1 [0-9]{3}-[0-9]{3}-[0-9]{4}$/][inside("US")],
-*["fax"]["fax"=~/^\+1 [0-9]{3}-[0-9]{3}-[0-9]{4}$/][inside("US")] {
+*["phone"]["phone"=~/^\+1-[0-9]{3}-[0-9]{3}-[0-9]{4}$/][inside("US")],
+*["contact:phone"]["contact:phone"=~/^\+1-[0-9]{3}-[0-9]{3}-[0-9]{4}$/][inside("US")],
+*["fax"]["fax"=~/^\+1-[0-9]{3}-[0-9]{3}-[0-9]{4}$/][inside("US")] {
   set perfectphone;
 }
 
@@ -262,7 +262,7 @@ way["name_2"]:modified {
   group: "Phone number formatting";
 }
 
-/* reformat valid phone numbers -> +1 NXX-NXX-NXXX  */
+/* reformat valid phone numbers -> +1-NXX-NXX-NXXX  */
 *["phone"].validphone!.formattedphone {
   assertMatch: "node phone=\"1 (383) 382-0398\"";
   assertMatch: "node phone=\"+1 383 382 0398\"";
@@ -273,42 +273,42 @@ way["name_2"]:modified {
   assertNoMatch: "node phone=\"+1-383-382-0398\"";
 
   throwWarning: tr("{0} not in a standard format", "{0.key}");
-  fixAdd: tr("phone=+1 {0}-{1}-{2}", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 1), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 2), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 3));
+  fixAdd: tr("phone=+1-{0}-{1}-{2}", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 1), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 2), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 3));
   group: "Phone number formatting";
 }
 
 /* same, but for contact:phone */
 *["contact:phone"].validphone!.formattedphone {
   throwWarning: tr("{0} not in a standard format", "{0.key}");
-  fixAdd: tr("contact:phone=+1 {0}-{1}-{2}", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 1), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 2), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 3));
+  fixAdd: tr("contact:phone=+1-{0}-{1}-{2}", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 1), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 2), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 3));
   group: "Phone number formatting";
 }
 
 /* same, but for fax */
 *["fax"].validphone!.formattedphone {
   throwWarning: tr("{0} not in a standard format", "{0.key}");
-  fixAdd: tr("fax=+1 {0}-{1}-{2}", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 1), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 2), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 3));
+  fixAdd: tr("fax=+1-{0}-{1}-{2}", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 1), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 2), get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 3));
   group: "Phone number formatting";
 }
 
 /* fix non-standard phone formats on already-modified objects */
-*["phone"].validphone:modified!.perfectphone {
+*["phone"].formattedphone:modified!.perfectphone {
   throwWarning: tr("{0} acceptable, but not standard", "{0.key}");
-  fixAdd: concat("phone=+1 ", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 1), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 2), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 3));
+  fixAdd: concat("phone=+1-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 1), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 2), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("phone"), "(", ""), ")", "")), 3));
   group: "Phone number formatting";
 }
 
 /* same, but for contact:phone */
-*["contact:phone"].validphone:modified!.perfectphone {
+*["contact:phone"].formattedphone:modified!.perfectphone {
   throwWarning: tr("{0} acceptable, but not standard", "{0.key}");
-  fixAdd: concat("contact:phone=+1 ", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 1), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 2), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 3));
+  fixAdd: concat("contact:phone=+1-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 1), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 2), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("contact:phone"), "(", ""), ")", "")), 3));
   group: "Phone number formatting";
 }
 
 /* same, but for fax */
-*["fax"].validphone:modified!.perfectphone {
+*["fax"].formattedphone:modified!.perfectphone {
   throwWarning: tr("{0} acceptable, but not standard", "{0.key}");
-  fixAdd: concat("fax=+1 ", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 1), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 2), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 3));
+  fixAdd: concat("fax=+1-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 1), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 2), "-", get(regexp_match("^(?:\\+? ?1?[ -.]*)?(?:([0-9]{3})[ -.]*)([0-9]{3})[ -.]*([0-9]{4})$", replace(replace(tag("fax"), "(", ""), ")", "")), 3));
   group: "Phone number formatting";
 }
 
@@ -572,4 +572,28 @@ way[highway][name]["name_2"][!"name_1"][!alt_name] {
   group: "Number value contains punctuation";
   throwWarning: "elevation";
   fixAdd: concat("ele=", replace(tag("ele"), ",", ""));
+}
+
+*[name=~/Historic Site: .*/] {
+  group: "Williamsbug";
+  throwWarning: "Historic Site";
+  fixAdd: concat("name=", replace(tag("name"), "Historic Site: ", ""));
+}
+
+*[name=~/Historic Trade: .*/] {
+  group: "Williamsbug";
+  throwWarning: "Historic Trade";
+  fixAdd: concat("name=", replace(tag("name"), "Historic Trade: ", ""));
+}
+
+*[name=~/\(Original Building\)/] {
+  group: "Williamsbug";
+  throwWarning: "Original Building";
+  fixAdd: concat("name=", replace(tag("name"), " (Original Building)", ""));
+  fixAdd: "historic=building"
+}
+
+*[website=~/^[:\.A-Z]+$/] {
+  throwWarning: "All caps website";
+  fixAdd: concat("website=", lower(tag("website")));
 }
