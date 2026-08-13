@@ -528,6 +528,24 @@ way[highway=residential][!name] {
   fixAdd: concat("wikidata=", replace(get(split(" (", tag("name")), 1), ")", ""));
 }
 
+*[wikidata=~/^https:\/\/www.wikidata.org\/wiki\/Q[0-9]+$/] {
+  group: "Wikidata URL format";
+  throwWarning: "{0.key}";
+  fixAdd: concat("wikidata=", replace(tag("wikidata"), "https://www.wikidata.org/wiki/", ""));
+}
+
+*["operator:wikidata"=~/^https:\/\/www.wikidata.org\/wiki\/Q[0-9]+$/] {
+  group: "Wikidata URL format";
+  throwWarning: "{0.key}";
+  fixAdd: concat("operator:wikidata=", replace(tag("operator:wikidata"), "https://www.wikidata.org/wiki/", ""));
+}
+
+*["brand:wikidata"=~/^https:\/\/www.wikidata.org\/wiki\/Q[0-9]+$/] {
+  group: "Wikidata URL format";
+  throwWarning: "{0.key}";
+  fixAdd: concat("brand:wikidata=", replace(tag("brand:wikidata"), "https://www.wikidata.org/wiki/", ""));
+}
+
 *[name=~/^.* \([0-9]+\)$/][place] {
   throwWarning: "Number in place name";
   fixAdd: concat("name=", get(split(" (", tag("name")), 0));
