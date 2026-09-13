@@ -592,6 +592,7 @@ way[highway][name]["name_2"][!"name_1"][!alt_name] {
   fixAdd: concat("ele=", replace(tag("ele"), ",", ""));
 }
 
+<<<<<<< Updated upstream
 *[name=~/Historic Site: .*/] {
   group: "Williamsbug";
   throwWarning: "Historic Site";
@@ -611,7 +612,14 @@ way[highway][name]["name_2"][!"name_1"][!alt_name] {
   fixAdd: "historic=building"
 }
 
-*[website=~/^[:\.A-Z]+$/] {
+*[website=~/^[:^\.A-Z]+$/] {
   throwWarning: "All caps website";
   fixAdd: concat("website=", lower(tag("website")));
+}
+
+*[highway=milestone][ref=~/Km .*/] {
+  group: "Milestone reference format";
+  throwWarning: "Ref moved to distance";
+  fixAdd: concat("distance=", replace(tag("ref"), "Km ", ""));
+  fixRemove: "ref";
 }

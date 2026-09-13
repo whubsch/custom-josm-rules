@@ -127,7 +127,17 @@ meta
   throwWarning: "Tienda";
   fixAdd: concat("name=", replace(replace(tag("name"), "Td.", "Tienda"), "Td ", "Tienda "));
 }
-*["name"=~/\bQda\.?\b/].spanish!.exempt {
+*["name"=~/\bCoop\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Cooperativa";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Coop.", "Cooperativa"), "Coop ", "Cooperativa "));
+}
+*["name"=~/\bMz\.?\b/]!.exempt {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Manzana";
+  fixAdd: concat("name=", replace(replace(tag("name"), "Mz.", "Manzana"), "Mz ", "Manzana "));
+}
+*["name"=~/\bQda\.?\b/]!.exempt {
   group: "Common abbreviation used in name (Spanish)";
   throwWarning: "Quebrada";
   fixAdd: concat("name=", replace(replace(tag("name"), "Qda.", "Quebrada"), "Qda ", "Quebrada "));
@@ -408,4 +418,75 @@ meta
 *[name=~/^[a-z]+ [a-z ]+$/].spanish {
   throwWarning: "Lowercase name";
   fixAdd: concat("name=", title(tag("name")));
+}
+
+node["name"=~/\bUPZ\b/] {
+  throwWarning: "UPZ abbreviation";
+  fixAdd: concat("official_name=", replace(tag("name"), "UPZ ", "Unidad de Planeamiento Zonal "));
+  fixAdd: concat("short_name=", tag("name"));
+  fixAdd: concat("name=", replace(tag("name"), "UPZ ", ""));
+}
+
+*[place][name=~/(COOP\\.)/].spanish {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Cooperativa";
+  fixAdd: concat("name=", replace(replace(tag("name"), "COOP.", "Cooperativa"), "COOP ", "Cooperativa "));
+}
+
+*[place][name=~/(CDLA\\.)/].spanish {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Ciudadela";
+  fixAdd: concat("name=", replace(replace(tag("name"), "CDLA.", "Ciudadela"), "CDLA ", "Ciudadela "));
+}
+
+*[place][name=~/(LOT\\.)/].spanish {
+  group: "Common abbreviation used in name (Spanish)";
+  throwWarning: "Lotización";
+  fixAdd: concat("name=", replace(replace(tag("name"), "LOT.", "Lotización"), "LOT ", "Lotización "));
+}
+
+/* Stage 1: classify raw values that contain a valid 10-digit CO number */
+*["phone"]["phone"=~/^(?:\(?\+?57\)?[ .-]*)?\(?[0-9]{3}\)?[ .-]*[0-9]{3}[ .-]*[0-9]{4}$/][inside("CO")],
+*["contact:phone"]["contact:phone"=~/^(?:\(?\+?57\)?[ .-]*)?\(?[0-9]{3}\)?[ .-]*[0-9]{3}[ .-]*[0-9]{4}$/][inside("CO")] {
+  set validphone;
+}
+
+*["phone"]["phone"=~/^\+57 [0-9]{3} [0-9]{7}$/][inside("CO")],
+*["contact:phone"]["contact:phone"=~/^\+57 [0-9]{3} [0-9]{7}$/][inside("CO")] {
+  set formattedphone;
+}
+
+/* flag anything that doesn't even parse as a CO number */
+*["phone"]!.validphone,
+*["contact:phone"]!.validphone {
+  assertMatch: "node phone=\"555-1234\"";
+  assertNoMatch: "node phone=\"+57 300 1234567\"";
+
+  throwWarning: tr("{0} unreadable phone number", "{0.key}");
+  group: "Colombian phone number formatting";
+}
+
+/* reformat anything valid but non-standard */
+*["phone"].validphone!.formattedphone {
+  assertMatch: "node phone=\"300 123 4567\"";
+  assertMatch: "node phone=\"573001234567\"";
+  assertMatch: "node phone=\"(300) 123-4567\"";
+  assertNoMatch: "node phone=\"+57 300 1234567\"";
+
+  throwWarning: tr("{0} not in standard format", "{0.key}");
+  fixAdd: tr("phone=+57 {0} {1}",
+    get(regexp_match("^(?:57)?([0-9]{3})([0-9]{7})$", replace(replace(replace(replace(replace(replace(tag("phone"), "(", ""), ")", ""), "-", ""), ".", ""), " ", ""), "+", "")), 1),
+    get(regexp_match("^(?:57)?([0-9]{3})([0-9]{7})$", replace(replace(replace(replace(replace(replace(tag("phone"), "(", ""), ")", ""), "-", ""), ".", ""), " ", ""), "+", "")), 2)
+  );
+  group: "Colombian phone number formatting";
+}
+
+/* same, but for contact:phone */
+*["contact:phone"].validphone!.formattedphone {
+  throwWarning: tr("{0} not in standard format", "{0.key}");
+  fixAdd: tr("contact:phone=+57 {0} {1}",
+    get(regexp_match("^(?:57)?([0-9]{3})([0-9]{7})$", replace(replace(replace(replace(replace(replace(tag("contact:phone"), "(", ""), ")", ""), "-", ""), ".", ""), " ", ""), "+", "")), 1),
+    get(regexp_match("^(?:57)?([0-9]{3})([0-9]{7})$", replace(replace(replace(replace(replace(replace(tag("contact:phone"), "(", ""), ")", ""), "-", ""), ".", ""), " ", ""), "+", "")), 2)
+  );
+  group: "Colombian phone number formatting";
 }
