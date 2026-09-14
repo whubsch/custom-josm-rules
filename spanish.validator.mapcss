@@ -427,26 +427,31 @@ node["name"=~/\bUPZ\b/] {
   fixAdd: concat("name=", replace(tag("name"), "UPZ ", ""));
 }
 
-*[place][name=~/(COOP\\.)/].spanish {
+*[place][name=~/^COOP\./].spanish {
   group: "Common abbreviation used in name (Spanish)";
   throwWarning: "Cooperativa";
   fixAdd: concat("name=", replace(replace(tag("name"), "COOP.", "Cooperativa"), "COOP ", "Cooperativa "));
 }
 
-*[place][name=~/(CDLA\\.)/].spanish {
+*[place][name=~/^CDLA\./].spanish {
   group: "Common abbreviation used in name (Spanish)";
   throwWarning: "Ciudadela";
   fixAdd: concat("name=", replace(replace(tag("name"), "CDLA.", "Ciudadela"), "CDLA ", "Ciudadela "));
 }
 
-*[place][name=~/(LOT\\.)/].spanish {
+*[place][name=~/^LOT\./].spanish {
   group: "Common abbreviation used in name (Spanish)";
   throwWarning: "Lotización";
   fixAdd: concat("name=", replace(replace(tag("name"), "LOT.", "Lotización"), "LOT ", "Lotización "));
 }
 
+*[place][name=~/^(RECINTO|Recinto|HACIENDA|Hacienda|FINCA|Finca|COOPERATIVA|Cooperativa)\s+\".*\"$/].spanish {
+  throwWarning: "Place name in quotes (Spanish)";
+  fixAdd: concat("name=", title(get(split("\"", tag("name")), 1)));
+}
+
 /* Stage 1: classify raw values that contain a valid 10-digit CO number */
-*["phone"]["phone"=~/^(?:\(?\+?57\)?[ .-]*)?\(?[0-9]{3}\)?[ .-]*[0-9]{3}[ .-]*[0-9]{4}$/][inside("CO")],
+*["phone"]["phone"=~/^(?:\(?\+?\s?57\)?[ .-]*)?\(?[0-9]{3}\)?[ .-]*[0-9]{3}[ .-]*[0-9]{4}$/][inside("CO")],
 *["contact:phone"]["contact:phone"=~/^(?:\(?\+?57\)?[ .-]*)?\(?[0-9]{3}\)?[ .-]*[0-9]{3}[ .-]*[0-9]{4}$/][inside("CO")] {
   set validphone;
 }
@@ -456,13 +461,19 @@ node["name"=~/\bUPZ\b/] {
   set formattedphone;
 }
 
+/* classify raw values that contain an old 8-digit CO number */
+*["phone"]["phone"=~/^(?:\(?\+?\s?57\)?[ .-]*)?\(?[0-9]\)?[ .-]*[0-9]{3}[ .-]*[0-9]{4}$/][inside("CO")],
+*["contact:phone"]["contact:phone"=~/^(?:\(?\+?57\)?[ .-]*)?\(?[0-9]{3}\)?[ .-]*[0-9]{3}[ .-]*[0-9]{4}$/][inside("CO")] {
+  set shortphone;
+}
+
 /* flag anything that doesn't even parse as a CO number */
-*["phone"]!.validphone,
-*["contact:phone"]!.validphone {
+*["phone"]!.validphone!.shortphone,
+*["contact:phone"]!.validphone!.shortphone {
   assertMatch: "node phone=\"555-1234\"";
   assertNoMatch: "node phone=\"+57 300 1234567\"";
 
-  throwWarning: tr("{0} unreadable phone number", "{0.key}");
+  throwWarning: tr("unreadable {0} number", "{0.key}");
   group: "Colombian phone number formatting";
 }
 
@@ -487,6 +498,21 @@ node["name"=~/\bUPZ\b/] {
   fixAdd: tr("contact:phone=+57 {0} {1}",
     get(regexp_match("^(?:57)?([0-9]{3})([0-9]{7})$", replace(replace(replace(replace(replace(replace(tag("contact:phone"), "(", ""), ")", ""), "-", ""), ".", ""), " ", ""), "+", "")), 1),
     get(regexp_match("^(?:57)?([0-9]{3})([0-9]{7})$", replace(replace(replace(replace(replace(replace(tag("contact:phone"), "(", ""), ")", ""), "-", ""), ".", ""), " ", ""), "+", "")), 2)
+  );
+  group: "Colombian phone number formatting";
+}
+
+/* add the missing 60 prefix */
+*["phone"].shortphone {
+  assertMatch: "node phone=\"6 123 4567\"";
+  assertMatch: "node phone=\"5761234567\"";
+  assertMatch: "node phone=\"(300) 123-4567\"";
+  assertNoMatch: "node phone=\"+57 300 1234567\"";
+
+  throwWarning: tr("{0} not complete", "{0.key}");
+  fixAdd: tr("phone=+57 60{0} {1}",
+    get(regexp_match("^(?:57)?([0-9]{1})([0-9]{7})$", replace(replace(replace(replace(replace(replace(tag("phone"), "(", ""), ")", ""), "-", ""), ".", ""), " ", ""), "+", "")), 1),
+    get(regexp_match("^(?:57)?([0-9]{1})([0-9]{7})$", replace(replace(replace(replace(replace(replace(tag("phone"), "(", ""), ")", ""), "-", ""), ".", ""), " ", ""), "+", "")), 2)
   );
   group: "Colombian phone number formatting";
 }
